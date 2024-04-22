@@ -67,7 +67,9 @@ public class GenericXmlApplicationContext extends GenericApplicationContext {
 	 * @param resourceLocations the resources to load from
 	 */
 	public GenericXmlApplicationContext(String... resourceLocations) {
+		// 加载所有的BeanDefinition
 		load(resourceLocations);
+
 		refresh();
 	}
 

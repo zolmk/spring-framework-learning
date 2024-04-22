@@ -337,11 +337,13 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	@Override
 	protected void doRollback(DefaultTransactionStatus status) {
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
+		// 获取连接对象
 		Connection con = txObject.getConnectionHolder().getConnection();
 		if (status.isDebug()) {
 			logger.debug("Rolling back JDBC transaction on Connection [" + con + "]");
 		}
 		try {
+			// 回滚
 			con.rollback();
 		}
 		catch (SQLException ex) {

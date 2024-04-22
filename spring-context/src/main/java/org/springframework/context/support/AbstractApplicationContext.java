@@ -519,20 +519,40 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
+			// 创建容器对象 DefaultListableBeanFactory
+			/*
+				如果这里的子类是ClassPathXmlApplicationContext，那么在创建BeanFactory时，就会
+				加载BeanDefinition
+				如果是SpringBoot应用，这里只会返回BeanFactory，在后续执行BeanFactoryPostProcessor
+				时才会加载BeanDefinition
+			 */
+
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
+
+			// 初始化beanFactory
+			// 1. 设置属性值
+			// 2. 添加要忽略的接口
+			// 3. 添加一些特殊的bean对象
 
 			// Prepare the bean factory for use in this context.
 			prepareBeanFactory(beanFactory);
 
 			try {
+				//
 				// Allows post-processing of the bean factory in context subclasses.
 				postProcessBeanFactory(beanFactory);
 
-				// Invoke factory processors registered as beans in the context.
-				// 调用BeanFactory的增强器（后处理器）
+				/*
+					调用BeanFactory的增强器（后处理器）
+					这里操作的对象主要是BeanDefinition，包括解析placeholder、扫描需要自动装配的bean（@Import @ComponentScan @Bean等注解）
+					并将其注册到registry中。
+				 */
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// Register bean processors that intercept bean creation.
+				/*
+					注册bean的增强器
+					如果有advice、切面、切点相关的需要，那么这里会注册相关的BeanPostProcessor
+				 */
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
@@ -652,6 +672,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// Configure the bean factory with context callbacks.
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+		// 设置忽略的接口，因为在设置aware时会统一处理
 		beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
 		beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
